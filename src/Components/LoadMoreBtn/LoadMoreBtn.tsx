@@ -1,6 +1,6 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { HandleLoadMoreClick } from '../App/App.types';
-import styles from './LoadMoreBtn.module.css';
+import css from './LoadMoreBtn.module.css';
 
 interface LoadMoreBtnProps {
   onClick: HandleLoadMoreClick;
@@ -8,7 +8,7 @@ interface LoadMoreBtnProps {
 
 const LoadMoreBtn: FC<LoadMoreBtnProps> = ({ onClick }) => {
   return (
-    <button onClick={onClick} className={styles.button}>
+    <button className={css.loadMoreBtn} type="button" onClick={onClick}>
       Load more
     </button>
   );

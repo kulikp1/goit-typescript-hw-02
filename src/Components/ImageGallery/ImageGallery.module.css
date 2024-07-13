@@ -1,8 +1,10 @@
 .gallery {
-  margin-top: 10px;
-  padding: 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
 
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(4, 1fr);
+.galleryItem {
+  width: calc((100% - 60px) / 4);
+  height: 360px;
 }

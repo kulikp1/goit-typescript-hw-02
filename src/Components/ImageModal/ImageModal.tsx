@@ -1,31 +1,28 @@
-import React, { FC } from 'react';
 import ReactModal from 'react-modal';
-
+import css from './ImageModal.module.css'
 import { HandleModalClose, Modal } from '../App/App.types';
-import styles from './ImageModal.module.css';
+import { FC } from 'react';
 
-interface ImageModalProps extends Modal {
+interface ImageModalProps {
+  isOpen: Modal['isOpen'];
+  url: Modal['url'];
+  description: Modal['description'];
   onClose: HandleModalClose;
 }
 
-const ImageModal: FC<ImageModalProps> = ({
-  isOpen,
-  url,
-  description,
-  onClose,
-}) => {
+const ImageModal: FC<ImageModalProps> = ({ isOpen, onClose, url, description }) => {
   return (
     <ReactModal
-      portalClassName={styles.modalPortal}
-      className={styles.modal}
-      overlayClassName={styles.overlay}
+      className={css.modal}
+      overlayClassName={css.overlay}
       isOpen={isOpen}
-      ariaHideApp={false}
       shouldCloseOnEsc={true}
+      ariaHideApp={false}
       onRequestClose={onClose}
     >
-      <img src={url} alt={description} className={styles.modalImage} />
+      <img className={css.image} src={url} alt={description} />
     </ReactModal>
   );
-};
+}
+
 export default ImageModal;

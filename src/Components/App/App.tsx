@@ -1,106 +1,108 @@
-import React, { useEffect, useRef, useState } from 'react';
-
+import { useEffect, useRef, useState } from 'react';
+import './App.css';
+import getPhotos from '../unsplash-api-fetch';
+import SearchBar from '../SearchBar/SearchBar';
+import ImageGallery from '../ImageGallery/ImageGallery';
+import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
-import ImageGallery from '../ImageGallery';
-import ImageModal from '../ImageModal';
-import LoadMoreBtn from '../LoadMoreBtn';
-import Loader from '../Loader';
-import SearchBar from '../SearchBar';
-
-import { fetchImages } from '../../Api/unsplash-api';
-import { Photo } from '../../Api/unsplash-api.types';
+import LoadMoreBtn from '../LoadMoreBtn/LoadMoreBtn';
+import ImageModal from '../ImageModal/ImageModal';
 import {
-  HandleImageClick,
-  HandleLoadMoreClick,
-  HandleSearch,
+  Image,
   Modal,
+  SearchResults,
+  HandleSearch,
+  HandleLoadMoreClick,
+  HandleImageClick,
+  HandleModalClose,
 } from './App.types';
 
-const INITIAL_MODAL_INFO: Modal = {
+const modalInitialParams: Modal = {
   isOpen: false,
   url: '',
   description: '',
 };
 
 function App() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [galleryImages, setGalleryImages] = useState<Photo[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [modalInfo, setModalInfo] = useState(INITIAL_MODAL_INFO);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [images, setImages] = useState<Image[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isError, setIsError] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [showLoadMoreBtn, setShowLoadMoreBtn] = useState<boolean>(false);
+  const [modalParams, setModalParams] = useState(modalInitialParams);
 
-  const appRef = useRef<HTMLDivElement>(null);
-
-  const handleSearch: HandleSearch = (newQuery: string) => {
-    if (newQuery === searchQuery) return;
-
-    setCurrentPage(1);
-    setSearchQuery(newQuery);
-    setGalleryImages([]);
-  };
-
-  const handleLoadMore: HandleLoadMoreClick = () =>
-    setCurrentPage((prev) => prev + 1);
-
-  const handleModalClose: HandleLoadMoreClick = () =>
-    setModalInfo(INITIAL_MODAL_INFO);
-
-  const handleImageClick: HandleImageClick = ({ url = '', description = '' }) =>
-    setModalInfo({ isOpen: true, url, description });
+  const appRef = useRef<HTMLDivElement| null>(null);
 
   useEffect(() => {
-    if (searchQuery === '') return;
+    if (searchQuery === '') {
+      return;
+    }
 
-    async function getImages() {
-      setIsLoading(true);
+    async function getData() {
       try {
-        const data: Photo[] = await fetchImages(searchQuery, currentPage);
-
-        if (data.length === 0) throw new Error('No results found');
-
-        setGalleryImages((prev) => [...prev, ...data]);
+        setIsLoading(true);
+        setIsError(false);
+        const { results, total_pages }: SearchResults =
+          await getPhotos<SearchResults>(searchQuery, page);
+        setImages(prevImages => {
+          return [...prevImages, ...results];
+        });
+        setShowLoadMoreBtn(total_pages > 0 && total_pages !== page);
       } catch (error) {
-        setError(error as Error);
-        throw new Error((error as Error).message);
+        setIsError(true);
       } finally {
         setIsLoading(false);
       }
     }
-    getImages();
-  }, [searchQuery, currentPage]);
+
+    getData();
+  }, [searchQuery, page]);
+
+  const handleSearch: HandleSearch = newQuery => {
+    setSearchQuery(newQuery);
+    setPage(1);
+    setImages([]);
+  };
+
+  const handleLoadMoreClick: HandleLoadMoreClick = () => {
+    setPage(page + 1);
+  };
+
+  const handleImageClick: HandleImageClick = (url, description) => {
+    setModalParams({ isOpen: true, url, description });
+  };
+
+  const handleModalClose: HandleModalClose = () => {
+    setModalParams(modalInitialParams);
+  };
 
   useEffect(() => {
-    if (currentPage === 1) return;
+    if (page === 1) return;
 
     appRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [galleryImages, currentPage]);
+  }, [images, page]);
 
   return (
     <div ref={appRef}>
       <SearchBar onSearch={handleSearch} />
 
-      {isLoading && galleryImages.length === 0 && <Loader />}
+      {isError && <ErrorMessage />}
 
-      {galleryImages.length > 0 && (
-        <>
-          <ImageGallery items={galleryImages} onImageClick={handleImageClick} />
-
-          {isLoading && <Loader />}
-          {error && <ErrorMessage message={error.message} />}
-          {!error && <LoadMoreBtn onClick={handleLoadMore} />}
-        </>
+      {images.length > 0 && (
+        <ImageGallery items={images} onImageClick={handleImageClick} />
       )}
 
-      {error && galleryImages.length === 0 && (
-        <ErrorMessage message={error.message} />
+      {images.length > 0 && !isLoading && showLoadMoreBtn && (
+        <LoadMoreBtn onClick={handleLoadMoreClick} />
       )}
 
-      {modalInfo.isOpen && (
+      {isLoading && <Loader />}
+      {modalParams && (
         <ImageModal
-          isOpen={modalInfo.isOpen}
-          url={modalInfo.url}
-          description={modalInfo.description}
+          url={modalParams.url}
+          description={modalParams.description}
+          isOpen={modalParams.isOpen}
           onClose={handleModalClose}
         />
       )}

@@ -1,6 +1,8 @@
-.message {
-  margin-top: 10px;
-  text-align: center;
+.error {
+  font-size: 40px;
+}
 
-  color: red;
+.errorIcon {
+  width: 80px;
+  height: 80px;
 }

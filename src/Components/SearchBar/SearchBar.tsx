@@ -1,57 +1,44 @@
+import { BsSearch } from 'react-icons/bs';
 import toast, { Toaster } from 'react-hot-toast';
-import { IoIosSearch } from 'react-icons/io';
-
-import React, { FC, FormEvent } from 'react';
+import css from './SearchBar.module.css';
 import { HandleSearch } from '../App/App.types';
-import styles from './SearchBar.module.css';
-import { FormElements } from './SearchBar.types';
-
-const notify = () => toast.error('Search query cannot be empty');
-const toasterOptions = {
-  error: {
-    style: {
-      background: 'red',
-      color: 'white',
-    },
-  },
-};
+import { FC, FormEvent } from 'react';
 
 interface SearchBarProps {
   onSearch: HandleSearch;
 }
 
 const SearchBar: FC<SearchBarProps> = ({ onSearch }) => {
-  const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const searchQuery = (
-      e.currentTarget.elements as FormElements
-    ).search.value.trim();
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.target as HTMLFormElement;
+    const input = form.elements.namedItem('searchQuery') as HTMLInputElement;
+    const query = input.value;
 
-    if (searchQuery === '') {
-      notify();
-      return;
-    }
-
-    onSearch(searchQuery);
+    query.trim() === ''
+      ? toast.error('Input can not be empty!')
+      : onSearch(query);
+    form.reset();
   };
 
   return (
-    <header className={styles.header}>
-      <form onSubmit={handleFormSubmit}>
+    <header className={css.header}>
+      <Toaster />
+      <form className={css.searchForm} onSubmit={handleSubmit}>
         <input
-          className={styles.searchInput}
+          className={css.input}
+          name="searchQuery"
           type="text"
           autoComplete="off"
           autoFocus
           placeholder="Search images and photos"
-          name="search"
         />
-        <button type="submit" className={styles.buttonSearch}>
-          <IoIosSearch className={styles.searchIcon} />
+        <button className={css.searchBtn} type="submit">
+          <BsSearch className={css.searchIcon} />
         </button>
       </form>
-      <Toaster position="top-left" toastOptions={toasterOptions} />
     </header>
   );
-};
-export default SearchBar;
+
+}
+ export default SearchBar;

@@ -1,21 +1,28 @@
-import React, { FC } from 'react';
-import styles from './ImageCard.module.css';
+import { Image } from '../App/App.types';
+import css from './ImageCard.module.css';
 
 interface ImageCardProps {
-  url: string;
-  description: string;
+  item: Image;
   onImageClick: () => void;
 }
 
-const ImageCard: FC<ImageCardProps> = ({ url, description, onImageClick }) => {
+const ImageCard: React.FC<ImageCardProps> = ({ item, onImageClick }) => {
   return (
-    <div>
+    <div className={css.thumb}>
       <img
-        className={styles.image}
-        src={url}
-        alt={description}
-        onClick={() => onImageClick()}
+        className={css.image}
+        src={item.urls.small}
+        alt={item.alt_description}
+        onClick={onImageClick}
       />
+      <ul className={css.descriptionList}>
+        <li>
+          <p>Photo by: {item.user.name}</p>
+        </li>
+        <li>
+          <p>Likes: {item.likes}</p>
+        </li>
+      </ul>
     </div>
   );
 };

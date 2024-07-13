@@ -1,4 +1,4 @@
-.spinner {
-  display: block;
-  margin: 0 auto;
+.loader {
+  display: flex;
+  justify-content: center;
 }

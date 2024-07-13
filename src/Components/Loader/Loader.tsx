@@ -1,8 +1,19 @@
-import React, { MagnifyingGlass } from 'react-loader-spinner';
+import { Oval } from "react-loader-spinner";
+import css from './Loader.module.css'
 
-import styles from './Loader.module.css';
-
-const Loader = () => {
-  return <MagnifyingGlass wrapperClass={styles.spinner} />;
+export default function Loader() {
+    return (
+      <div className={css.loader}>
+        <Oval
+          visible={true}
+          height="80"
+          width="80"
+          color="#fff"
+          secondaryColor="#808080"
+          ariaLabel="oval-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+        />
+      </div>
+    );
 };
-export default Loader;
