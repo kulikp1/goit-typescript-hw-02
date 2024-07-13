@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "moduleResolution": "node16",
+    "lib": ["es2015", "dom"],
+    "typeRoots": ["./node_modules/@types"],
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
